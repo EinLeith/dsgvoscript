@@ -21,7 +21,7 @@ public class DSGVO_GUI extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Oberes Panel (ID + Buttons)
+        // Oberes Panel
         JPanel topPanel = new JPanel();
         topPanel.add(new JLabel("Kunden-ID:"));
         idField = new JTextField(8);
@@ -37,7 +37,7 @@ public class DSGVO_GUI extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Formular für neuen Kunden
+        // neue kunden einfügen in die großen felder da
         JPanel formPanel = new JPanel(new GridLayout(6, 2));
 
         formPanel.add(new JLabel("Vorname:"));
@@ -66,17 +66,17 @@ public class DSGVO_GUI extends JFrame {
 
         add(formPanel, BorderLayout.CENTER);
 
-        // Ausgabefeld
+        // output
         outputArea = new JTextArea(5, 40);
         outputArea.setEditable(false);
         add(new JScrollPane(outputArea), BorderLayout.SOUTH);
 
-        // Button-Aktionen
+        // buttons
         anzeigenBtn.addActionListener(e -> zeigeKundendaten());
         loeschenBtn.addActionListener(e -> loescheKunde());
         hinzufuegenBtn.addActionListener(e -> kundeHinzufuegen());
     }
-
+ // sql connection mariadb
     private Connection getConnection() throws Exception {
         Class.forName("org.mariadb.jdbc.Driver");
 
@@ -86,7 +86,7 @@ public class DSGVO_GUI extends JFrame {
 
         return DriverManager.getConnection(url, user, password);
     }
-
+    // fragt kundendaten per sql yquery ab und gibt das wieder im swift gui
     private void zeigeKundendaten() {
         try {
             int id = Integer.parseInt(idField.getText().trim());
@@ -143,7 +143,7 @@ public class DSGVO_GUI extends JFrame {
             outputArea.setText("Fehler: " + ex.getMessage());
         }
     }
-
+// auto increment an also wird id automatisch vergeben
     private void kundeHinzufuegen() {
         try {
             String sql = "INSERT INTO kundendaten " +
