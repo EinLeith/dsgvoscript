@@ -14,6 +14,7 @@ public class Main {
         return DriverManager.getConnection(url, user, password);
     }
 
+
     // Kundendaten anzeigen
     public static void zeigeKundendaten(int id) {
         String sql = "SELECT * FROM kundendaten WHERE id = ?";
@@ -43,6 +44,7 @@ public class Main {
             e.printStackTrace();
         }
     }
+
 
     // Kunde löschen
     public static void loescheKunde(int id) {
