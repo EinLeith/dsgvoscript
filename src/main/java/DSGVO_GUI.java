@@ -152,7 +152,14 @@ public class DSGVO_GUI extends JFrame {
         try {
             int id = Integer.parseInt(idField.getText().trim());
 
-            String sql = "DELETE FROM kundendaten WHERE id = ?";
+            String sql = "UPDATE kundendaten SET "
+                    + "vorname = 'Anonym', "
+                    + "nachname = 'Anonym', "
+                    + "strasse = 'Anonym', "
+                    + "strassennummer = 0, "
+                    + "plz = 0, "
+                    + "ort = 'Anonym' "
+                    + "WHERE id = ?";
 
             try (Connection conn = getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
