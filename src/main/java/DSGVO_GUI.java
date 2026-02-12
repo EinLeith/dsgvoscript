@@ -4,7 +4,6 @@ import java.sql.*;
 
 public class DSGVO_GUI extends JFrame {
 
-    // Felder
     private JTextField idField;
     private JTextArea outputArea;
 
@@ -17,77 +16,107 @@ public class DSGVO_GUI extends JFrame {
 
     public DSGVO_GUI() {
         setTitle("DSGVO Kundenverwaltung");
-        setSize(500, 400);
+        setSize(500, 420);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
+        setResizable(false); // kann man rausmachen aber sieht kacke aus wenns groß ist
 
-        // Oberes Panel
-        JPanel topPanel = new JPanel();
-        topPanel.add(new JLabel("Kunden-ID:"));
-        idField = new JTextField(8);
-        topPanel.add(idField);
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.add("Kundensuche", createSearchPanel());
+        tabs.add("Neuer Kunde", createAddPanel());
 
-        JButton anzeigenBtn = new JButton("Daten anzeigen");
-        JButton loeschenBtn = new JButton("Kunde löschen");
-        JButton hinzufuegenBtn = new JButton("Kunde hinzufügen");
+        add(tabs);
+    }
 
-        topPanel.add(anzeigenBtn);
-        topPanel.add(loeschenBtn);
-        topPanel.add(hinzufuegenBtn);
+    private JPanel createSearchPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        add(topPanel, BorderLayout.NORTH);
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        top.add(new JLabel("Kunden-ID:"));
+        idField = new JTextField(10);
+        top.add(idField);
 
-        // neue kunden einfügen in die großen felder da
-        JPanel formPanel = new JPanel(new GridLayout(6, 2));
 
-        formPanel.add(new JLabel("Vorname:"));
-        vornameField = new JTextField();
-        formPanel.add(vornameField);
 
-        formPanel.add(new JLabel("Nachname:"));
-        nachnameField = new JTextField();
-        formPanel.add(nachnameField);
+        JButton anzeigenBtn = new JButton("Anzeigen");
+        JButton loeschenBtn = new JButton("Löschen");
 
-        formPanel.add(new JLabel("Straße:"));
-        strasseField = new JTextField();
-        formPanel.add(strasseField);
+        top.add(anzeigenBtn);
+        top.add(loeschenBtn);
 
-        formPanel.add(new JLabel("Nr:"));
-        nummerField = new JTextField();
-        formPanel.add(nummerField);
+        panel.add(top, BorderLayout.NORTH);
 
-        formPanel.add(new JLabel("PLZ:"));
-        plzField = new JTextField();
-        formPanel.add(plzField);
-
-        formPanel.add(new JLabel("Ort:"));
-        ortField = new JTextField();
-        formPanel.add(ortField);
-
-        add(formPanel, BorderLayout.CENTER);
-
-        // output
-        outputArea = new JTextArea(5, 40);
+        outputArea = new JTextArea();
         outputArea.setEditable(false);
-        add(new JScrollPane(outputArea), BorderLayout.SOUTH);
+        outputArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        outputArea.setBorder(BorderFactory.createTitledBorder("Ausgabe"));
 
-        // buttons
-        anzeigenBtn.addActionListener(e -> zeigeKundendaten());
-        loeschenBtn.addActionListener(e -> loescheKunde());
-        hinzufuegenBtn.addActionListener(e -> kundeHinzufuegen());
+        panel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+
+        anzeigenBtn.addActionListener(e -> kundenDatenAnzeigenBabaProMethode());
+        loeschenBtn.addActionListener(e -> kundeYallahLöschen());
+
+        return panel;
     }
- // sql connection mariadb
-    private Connection getConnection() throws Exception {
+
+    private JPanel createAddPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JPanel form = new JPanel(new GridLayout(6, 2, 10, 10));
+        form.setBorder(BorderFactory.createTitledBorder("Neuer Kunde"));
+
+        form.add(new JLabel("Vorname:"));
+        vornameField = new JTextField();
+        form.add(vornameField);
+
+        form.add(new JLabel("Nachname:"));
+        nachnameField = new JTextField();
+        form.add(nachnameField);
+
+        form.add(new JLabel("Straße:"));
+        strasseField = new JTextField();
+        form.add(strasseField);
+
+        form.add(new JLabel("Nr:"));
+        nummerField = new JTextField();
+        form.add(nummerField);
+
+        form.add(new JLabel("PLZ:"));
+        plzField = new JTextField();
+        form.add(plzField);
+
+        form.add(new JLabel("Ort:"));
+        ortField = new JTextField();
+        form.add(ortField);
+
+        panel.add(form, BorderLayout.CENTER);
+
+        JButton addBtn = new JButton("Kunde hinzufügen");
+        addBtn.setPreferredSize(new Dimension(180, 40));
+
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottom.add(addBtn);
+        panel.add(bottom, BorderLayout.SOUTH);
+
+        addBtn.addActionListener(e -> kundeHinzufuegen());
+
+        return panel;
+    }
+
+    private Connection getConnection() throws Exception { // sql mariadb connection
         Class.forName("org.mariadb.jdbc.Driver");
-
-        String url = "jdbc:mariadb://localhost:3306/mysql";
-        String user = "root";
-        String password = "root";
-
-        return DriverManager.getConnection(url, user, password);
+        return DriverManager.getConnection(
+                "jdbc:mariadb://localhost:3306/mysql",
+                "root",
+                "root"
+        );
     }
-    // fragt kundendaten per sql yquery ab und gibt das wieder im swift gui
-    private void zeigeKundendaten() {
+
+    private void kundenDatenAnzeigenBabaProMethode() {
         try {
             int id = Integer.parseInt(idField.getText().trim());
 
@@ -111,16 +140,15 @@ public class DSGVO_GUI extends JFrame {
                                     rs.getString("ort")
                     );
                 } else {
-                    outputArea.setText("Kunde nicht gefunden.");
+                    outputArea.setText("wallah kunde gibt es nicht");
                 }
             }
-
         } catch (Exception ex) {
             outputArea.setText("Fehler: " + ex.getMessage());
         }
     }
 
-    private void loescheKunde() {
+    private void kundeYallahLöschen() {
         try {
             int id = Integer.parseInt(idField.getText().trim());
 
@@ -133,17 +161,16 @@ public class DSGVO_GUI extends JFrame {
                 int rows = stmt.executeUpdate();
 
                 if (rows > 0) {
-                    outputArea.setText("Kunde erfolgreich gelöscht.");
+                    outputArea.setText("Kunde gelöscht.");
                 } else {
-                    outputArea.setText("Kunde nicht gefunden.");
+                    outputArea.setText("wallah kunde gibts nicht.");
                 }
             }
-
         } catch (Exception ex) {
             outputArea.setText("Fehler: " + ex.getMessage());
         }
     }
-// auto increment an also wird id automatisch vergeben
+
     private void kundeHinzufuegen() {
         try {
             String sql = "INSERT INTO kundendaten " +
@@ -165,16 +192,27 @@ public class DSGVO_GUI extends JFrame {
                 ResultSet rs = stmt.getGeneratedKeys();
                 if (rs.next()) {
                     int neueId = rs.getInt(1);
-                    outputArea.setText("Kunde hinzugefügt. Neue ID: " + neueId);
+                    JOptionPane.showMessageDialog(this,
+                            "Kunde hinzugefügt.\nNeue ID: " + neueId,
+                            "Erfolg",
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             }
-
         } catch (Exception ex) {
-            outputArea.setText("Fehler: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Fehler: " + ex.getMessage(),
+                    "Fehler",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public static void main(String[] args) {
+        try {
+            com.formdev.flatlaf.FlatLightLaf.setup();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(() -> {
             DSGVO_GUI app = new DSGVO_GUI();
             app.setVisible(true);
